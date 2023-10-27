@@ -77,5 +77,5 @@ if __name__ == '__main__':
     model.eval()
     model.to(device)
     # generate_attack_to_imagebind(model, device, cos_sim)
-    val_loader = load_data(data_path='./imagenet', batch_size=100)
+    val_loader = load_data(data_path='/imagenet', batch_size=500)
     get_distance_within_images(val_loader, cos_sim, model, device)
