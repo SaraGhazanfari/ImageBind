@@ -1,3 +1,4 @@
+import argparse
 import os
 
 from torchvision.datasets import ImageFolder
@@ -61,6 +62,7 @@ def get_distance_from_texts(model, cos_sim):
         print(cos_sim(embeddings[0:1], embeddings[1:]))
 
 
+@torch.no_grad()
 def get_distance_within_images(val_loader, cos_sim, model, device):
     distance_list = list()
     for images, _ in tqdm(val_loader):
@@ -70,6 +72,11 @@ def get_distance_within_images(val_loader, cos_sim, model, device):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser('Evaluation with weighted k-NN on ImageNet')
+    parser.add_argument('--batch_size', default=128, type=int, help='Per-GPU batch-size')
+    parser.add_argument('--data_path', default='/imagenet', type=str)
+
+    args = parser.parse_args()
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     cos_sim = nn.CosineSimilarity(dim=1, eps=1e-6)
     # Instantiate model
@@ -77,5 +84,5 @@ if __name__ == '__main__':
     model.eval()
     model.to(device)
     # generate_attack_to_imagebind(model, device, cos_sim)
-    val_loader = load_data(data_path='/imagenet', batch_size=50)
+    val_loader = load_data(data_path=args.data_path, batch_size=args.batch_size)
     get_distance_within_images(val_loader, cos_sim, model, device)
