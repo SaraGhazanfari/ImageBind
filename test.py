@@ -59,7 +59,7 @@ def get_distance_from_texts(model, cos_sim):
     }
     with torch.no_grad():
         embeddings = model(inputs)[ModalityType.TEXT]
-        print(cos_sim(embeddings[0:1], embeddings[1:]))
+        print(cos_sim(embeddings[0:-1], embeddings[-1:]))
 
 
 @torch.no_grad()
