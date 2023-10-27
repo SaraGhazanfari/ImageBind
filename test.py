@@ -87,6 +87,6 @@ if __name__ == '__main__':
     model.to(device)
     # generate_attack_to_imagebind(model, device, cos_sim)
     val_loader, img_ref = load_data(data_path=args.data_path, batch_size=args.batch_size)
-    img_embed = model({'vision': img_ref})['vision'].unsqueeze(0)
+    img_embed = model({'vision': img_ref.unsqueeze(0)})['vision']
     print(img_embed.shape)
     get_distance_within_images(img_embed, val_loader, cos_sim, model, device)
