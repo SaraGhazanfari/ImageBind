@@ -67,8 +67,8 @@ def get_distance_within_images(val_loader, cos_sim, model, device):
     distance_list = list()
     for images, _ in tqdm(val_loader):
         embed = model({ModalityType.VISION: images.to(device)})[ModalityType.VISION]
-        distance_list.extend(cos_sim(embed[0:1], embed[1:]))
-    torch.save(distance_list, 'distance_list.pt')
+        distance_list.extend(cos_sim(embed[0:-1], embed[-1:]))
+    torch.save(distance_list, 'inter_class_distance_list.pt')
 
 
 if __name__ == '__main__':
