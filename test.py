@@ -1,6 +1,7 @@
 import argparse
 import os
 
+from PIL import Image
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
 
@@ -46,7 +47,8 @@ def load_data(data_path, batch_size):
         pin_memory=True,
         drop_last=False,
     )
-    return data_loader_val
+    img_ref = transform(Image.open('ref.png', mode='r'))
+    return data_loader_val, img_ref
 
 
 def get_distance_from_texts(model, cos_sim):
@@ -63,11 +65,11 @@ def get_distance_from_texts(model, cos_sim):
 
 
 @torch.no_grad()
-def get_distance_within_images(val_loader, cos_sim, model, device):
+def get_distance_within_images(img_embed, val_loader, cos_sim, model, device):
     distance_list = list()
     for images, _ in tqdm(val_loader):
         embed = model({ModalityType.VISION: images.to(device)})[ModalityType.VISION]
-        distance_list.extend(cos_sim(embed[0:-1], embed[-1:]))
+        distance_list.extend(cos_sim(img_embed, embed[0:]))
     torch.save(distance_list, 'inter_class_distance_list.pt')
 
 
@@ -84,5 +86,7 @@ if __name__ == '__main__':
     model.eval()
     model.to(device)
     # generate_attack_to_imagebind(model, device, cos_sim)
-    val_loader = load_data(data_path=args.data_path, batch_size=args.batch_size)
-    get_distance_within_images(val_loader, cos_sim, model, device)
+    val_loader, img_ref = load_data(data_path=args.data_path, batch_size=args.batch_size)
+    img_embed = model({'vision': img_ref})['vision'].unsqueeze(0)
+    print(img_embed.shape)
+    get_distance_within_images(img_embed, val_loader, cos_sim, model, device)
