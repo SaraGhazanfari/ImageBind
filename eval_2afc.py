@@ -3,6 +3,7 @@ import torch
 from torch import nn
 from tqdm import tqdm
 from data.night_dataset import NightDataset
+from imagebind import ModalityType
 
 
 @torch.no_grad()
@@ -61,22 +62,11 @@ def get_2afc_score_eval(model, test_loader, device):
     return twoafc_score
 
 
-def get_cosine_score_between_images(model, img_ref, img_left, img_right, requires_grad=False,
-                                    requires_normalization=False):
+def get_cosine_score_between_images(model, img_ref, img_left, img_right):
     cos_sim = nn.CosineSimilarity(dim=1, eps=1e-6)
-    embed_ref = model(img_ref)
-    if not requires_grad:
-        embed_ref = embed_ref.detach()
-    embed_x0 = model(img_left).detach()
-    embed_x1 = model(img_right).detach()
-    if requires_normalization:
-        norm_ref = torch.norm(embed_ref, p=2, dim=(1)).unsqueeze(1)
-        embed_ref = embed_ref / norm_ref
-        norm_x_0 = torch.norm(embed_x0, p=2, dim=(1)).unsqueeze(1)
-        embed_x0 = embed_x0 / norm_x_0
-        norm_x_1 = torch.norm(embed_x1, p=2, dim=(1)).unsqueeze(1)
-        embed_x1 = embed_x1 / norm_x_1
-
+    embed_ref = model({ModalityType.VISION: img_ref})[ModalityType.VISION]
+    embed_x0 = model({ModalityType.VISION: img_left})[ModalityType.VISION]
+    embed_x1 = model({ModalityType.VISION: img_right})[ModalityType.VISION]
     bound = torch.norm(embed_x0 - embed_x1, p=2, dim=(1)).unsqueeze(1)
     dist_0 = 1 - cos_sim(embed_ref, embed_x0)
     dist_1 = 1 - cos_sim(embed_ref, embed_x1)
