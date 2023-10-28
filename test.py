@@ -47,7 +47,7 @@ def load_data(data_path, batch_size):
         pin_memory=True,
         drop_last=False,
     )
-    img_ref = transform(Image.open('ref.png', mode='r'))
+    img_ref = transform(Image.open('ref.jpg', mode='r'))
     return data_loader_val, img_ref
 
 
