@@ -94,4 +94,4 @@ if __name__ == '__main__':
     # generate_attack_to_imagebind(model, device, cos_sim)
     # val_loader, img_ref = load_data(data_path=args.data_path, batch_size=args.batch_size)
     # get_distance_within_images(img_embed, val_loader, cos_sim, model, device)
-    get_the_2afc_score(model=model, data_dir=args.data_dir, batch_size=args.batch_size, device=device)
+    get_the_2afc_score(model=model, data_dir=args.data_path, batch_size=args.batch_size, device=device)
