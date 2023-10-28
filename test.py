@@ -5,6 +5,7 @@ from PIL import Image
 from torchvision.datasets import ImageFolder
 from tqdm import tqdm
 
+from eval_2afc import dreamsim_eval
 from imagebind import data
 import torch
 from imagebind.models import imagebind_model
@@ -73,6 +74,11 @@ def get_distance_within_images(img_embed, val_loader, cos_sim, model, device):
     torch.save(distance_list, 'inter_class_distance_list.pt')
 
 
+@torch.no_grad()
+def get_the_2afc_score(model, data_dir, batch_size, device):
+    dreamsim_eval(model, data_dir, batch_size, device)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Evaluation with weighted k-NN on ImageNet')
     parser.add_argument('--batch_size', default=128, type=int, help='Per-GPU batch-size')
@@ -86,7 +92,6 @@ if __name__ == '__main__':
     model.eval()
     model.to(device)
     # generate_attack_to_imagebind(model, device, cos_sim)
-    val_loader, img_ref = load_data(data_path=args.data_path, batch_size=args.batch_size)
-    img_embed = model({'vision': img_ref.unsqueeze(0).to(device)})['vision']
-    print(img_embed.shape)
-    get_distance_within_images(img_embed, val_loader, cos_sim, model, device)
+    # val_loader, img_ref = load_data(data_path=args.data_path, batch_size=args.batch_size)
+    # get_distance_within_images(img_embed, val_loader, cos_sim, model, device)
+    get_the_2afc_score(model=model, data_dir=args.data_dir, batch_size=args.batch_size, device=device)
